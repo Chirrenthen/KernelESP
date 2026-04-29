@@ -1,21 +1,7 @@
 /*
  * KernelESP v1.0
  * A Linux-like interactive shell for the ESP32
- *
- * Features:
- *   - Full GPIO / ADC / DAC / PWM / Touch control
- *   - SPIFFS persistent filesystem (real files, real directories)
- *   - WiFi Station + AP mode, HTTP server, port scanner, ping
- *   - Scripting engine: eval, run, for-loops
- *   - Kernel log (dmesg), uptime, sysinfo / neofetch
- *   - Morse, disco, scope, sensor monitor, wave art
- *   - Clean ANSI UI, color prompt with hostname and path
- *
- * Target: ESP32 (any variant) — tested on ESP32-WROOM-32
- * Baud:   115200
- *
- * Libraries required (all built-in to ESP32 Arduino core):
- *   WiFi, SPIFFS, WebServer, esp_system, esp_wifi
+ * Tested on ESP32 - WROOM
  */
 
 #include <Arduino.h>
@@ -29,7 +15,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-// ─── Limits ──────────────────────────────────────────────────────────────────
+// Limits
 #define CMD_LEN       256
 #define MAX_ARGS      16
 #define ARG_LEN       64
@@ -38,7 +24,7 @@
 #define DMESG_LEN     80
 #define HOSTNAME      "kernelesp"
 
-// ─── ANSI helpers ────────────────────────────────────────────────────────────
+// ANSI helpers
 #define RESET   "\033[0m"
 #define BOLD    "\033[1m"
 #define DIM     "\033[2m"
@@ -54,7 +40,7 @@
 #define BYELLOW "\033[93m"
 #define BCYAN   "\033[96m"
 
-// ─── Global State ─────────────────────────────────────────────────────────────
+// Global State
 char  inputBuffer[CMD_LEN];
 int   inputLen   = 0;
 char  currentPath[PATH_LEN] = "/";
@@ -82,7 +68,7 @@ String apPASS         = "kernelesp";
 WebServer* httpServer = nullptr;
 bool httpRunning = false;
 
-// ─── Kernel Log ───────────────────────────────────────────────────────────────
+// Kernel Log
 void klog(const char* msg) {
   uint8_t idx = dmesgHead % DMESG_LINES;
   dmesgBuf[idx].ts = (millis() - bootTime) / 1000;
@@ -92,7 +78,7 @@ void klog(const char* msg) {
   if (dmesgCount < DMESG_LINES) dmesgCount++;
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// Utilities
 int safeAtoi(const char* s) {
   if (!s || !*s) return 0;
   return (int)strtol(s, nullptr, 0); // handles 0x hex too
@@ -113,7 +99,7 @@ char* ltrim(char* s) {
   return s;
 }
 
-// ─── Command Parser ───────────────────────────────────────────────────────────
+// Command Parser
 // Handles quoted strings properly: eval "gpio 2 on; delay 100"
 void parseCommand(char* line, char** argv, uint8_t* argc) {
   *argc = 0;
@@ -137,7 +123,7 @@ void parseCommand(char* line, char** argv, uint8_t* argc) {
   }
 }
 
-// ─── Pin Resolution ───────────────────────────────────────────────────────────
+// Pin Resolution
 // ESP32 GPIO: 0-39 (input-only: 34-39), ADC1: 32-39, ADC2: 0,2,4,12-15,25-27
 // DAC: 25, 26  PWM: any output pin  Touch: 0,2,4,12-15,27,32,33
 int resolvePin(const char* name) {
@@ -156,7 +142,7 @@ int resolvePin(const char* name) {
   return -1;
 }
 
-// ─── SPIFFS Filesystem Helpers ───────────────────────────────────────────────
+// SPIFFS Filesystem Helpers
 String buildPath(const char* name) {
   if (name[0] == '/') return String(name);
   String p = String(currentPath);
@@ -195,7 +181,7 @@ void initFilesystem() {
   klog("SPIFFS mounted OK");
 }
 
-// ─── ASCII Logo ───────────────────────────────────────────────────────────────
+// ASCII Logo
 void showLogo() {
   Serial.print(F("\033[2J\033[H")); // clear screen, home
   Serial.println(F(CYAN
@@ -235,14 +221,14 @@ void showLogo() {
   Serial.println(GRAY "  Type " YELLOW "'help'" GRAY " for commands.  " YELLOW "'wifi help'" GRAY " for network commands." RESET "\n");
 }
 
-// ─── Prompt ───────────────────────────────────────────────────────────────────
+// Prompt
 void printPrompt() {
   const char* wifiTag = wifiConnected ? GREEN " [" BCYAN "net" GREEN "]" : "";
   Serial.printf(BGREEN "root@" HOSTNAME RESET ":" BLUE "%s" RESET "%s" WHITE "$ " RESET,
                 currentPath, wifiTag);
 }
 
-// ─── Hardware Commands ────────────────────────────────────────────────────────
+// Hardware Commands
 void cmdPinMode(char** argv, uint8_t argc) {
   if (argc < 3) { Serial.println(F("Usage: pinmode <pin> <input|output|pullup|pulldown>")); return; }
   int pin = resolvePin(argv[1]);
@@ -538,7 +524,7 @@ void cmdMonitor(char** argv, uint8_t argc) {
   Serial.println(GREEN "  Monitor done" RESET "\n");
 }
 
-// ─── Filesystem Commands ───────────────────────────────────────────────────────
+// Filesystem Commands
 void cmdLS(char** argv, uint8_t argc) {
   String target = (argc >= 2) ? buildPath(argv[1]) : String(currentPath);
   if (!target.endsWith("/")) target += "/";
@@ -725,7 +711,7 @@ void cmdDf(char** argv, uint8_t argc) {
                  total/1024, used/1024, free_/1024);
 }
 
-// ─── WiFi Commands ────────────────────────────────────────────────────────────
+// WiFi Commands
 void cmdWifi(char** argv, uint8_t argc) {
   if (argc < 2) {
     // Show status
@@ -903,7 +889,7 @@ void cmdWifi(char** argv, uint8_t argc) {
   Serial.println(F("  wifi mac                      Show MAC addresses\n"));
 }
 
-// ─── Scripting ────────────────────────────────────────────────────────────────
+// Scripting
 void executeCommand(char* line);  // forward declaration
 
 void runScript(const char* text) {
@@ -971,7 +957,7 @@ void cmdDelay(char** argv, uint8_t argc) {
   delay(ms);
 }
 
-// ─── System Commands ──────────────────────────────────────────────────────────
+// System Commands
 void cmdFree(char** argv, uint8_t argc) {
   uint32_t heap    = ESP.getFreeHeap();
   uint32_t minHeap = ESP.getMinFreeHeap();
@@ -992,7 +978,7 @@ void cmdSysInfo(char** argv, uint8_t argc) {
     CYAN  "  ██████╗ ███████╗██████╗ ██████╗ ██████╗ \n"
     BCYAN "  ██╔════╝██╔════╝██╔══██╗╚════██╗╚════██╗\n"
     CYAN  "  █████╗  ███████╗██████╔╝ █████╔╝ █████╔╝\n"
-    CYAN  "  ██╔══╝  ╚════██║██╔═══╝ ██╔═══╝  ╚═══██╗\n"
+    CYAN  "  ██╔══╝  ╚════██║██╔═══╝  ╚═══██╗ ██╔═══╝\n"
     BCYAN "  ███████╗███████║██║     ███████╗███████║ \n"
     GRAY  "  ╚══════╝╚══════╝╚═╝     ╚══════╝╚══════╝" RESET "\n"
   ));
@@ -1102,7 +1088,7 @@ void cmdHelp(char** argv, uint8_t argc) {
   Serial.println(F("  " GRAY "ADC:  GPIO32-39 (ADC1)  DAC: GPIO25-26" RESET "\n"));
 }
 
-// ─── Main Command Router ─────────────────────────────────────────────────────
+// Main Command Router
 void executeCommand(char* line) {
   line = ltrim(line);
   if (!line || strlen(line) == 0 || line[0] == '#') return;
@@ -1176,7 +1162,7 @@ void executeCommand(char* line) {
   }
 }
 
-// ─── Setup ────────────────────────────────────────────────────────────────────
+// Setup
 void setup() {
   Serial.begin(115200);
   bootTime = millis();
@@ -1197,7 +1183,7 @@ void setup() {
   printPrompt();
 }
 
-// ─── Loop ─────────────────────────────────────────────────────────────────────
+// Loop
 void loop() {
   // Handle HTTP server if active
   if (httpRunning && httpServer) httpServer->handleClient();
