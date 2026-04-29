@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![ESP32](https://img.shields.io/badge/ESP32-WROOM--32-E7352C?style=for-the-badge&logo=espressif&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows_|_macOS_|_Linux-808080?style=for-the-badge)
-![License](https://img.shields.io/badge/License-CC0_1.0-lightgrey?style=for-the-badge)
+![License](https://img.shields.io/badge/License-BSD-3lightgrey?style=for-the-badge)
 
 > **A full Linux-like interactive shell for the ESP32 Family — with WiFi, real persistent filesystem, DAC, touch, PWM, scripting, and a clean Python terminal.**
 
