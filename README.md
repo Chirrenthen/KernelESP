@@ -6,7 +6,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Windows_|_macOS_|_Linux-808080?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-CC0_1.0-lightgrey?style=for-the-badge)
 
-> **A full Linux-like interactive shell for the ESP32 — with WiFi, real persistent filesystem, DAC, touch, PWM, scripting, and a clean Python terminal.**
+> **A full Linux-like interactive shell for the ESP32 Family — with WiFi, real persistent filesystem, DAC, touch, PWM, scripting, and a clean Python terminal.**
 
 KernelESP turns your ESP32 into a live interactive environment. A Python terminal on your PC talks to the ESP32 over Serial, giving you a shell to control GPIO, read sensors, manage a real SPIFFS filesystem, run scripts, scan WiFi, start a web server — all without recompiling.
 
@@ -299,6 +299,6 @@ Pull requests welcome. Open an issue for bugs or feature requests.
 ---
 
 ## Acknowledgements
-I sincerely thank @PPPDUD and @Arc1011 — the tone and notone command implementations in this project are based on their work in KernelUNO.
+I sincerely thank @PPPDUD and @Arc1011 — some of the command implementations in this project are based on their work in KernelUNO.
 
 <p align="center">Built for the ESP32 community — KernelESP v1.0</p>
