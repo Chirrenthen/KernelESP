@@ -1510,12 +1510,15 @@ struct cmdRun_args {
     String path = buildPath(args.file->sval[0]);
     File f = SPIFFS.open(path, FILE_READ);
     if (!f) { printf(RED "Script not found: %s\n" RESET, args.file->sval[0]); return -1; }
-    String content = f.readString();
-    f.close();
+    String content;
     printf(CYAN ">>> run %s" RESET "\n", argv[1]);
-    runScript(content.c_str());
-    printf(CYAN ">>> done (%u bytes)" RESET "\n", content.length());
+    do {
+      content = f.readStringUntil('\n');
+      runScript(content.c_str());
+    } while(f.position() < f.size());
+    printf(CYAN ">>> done (%u bytes)" RESET "\n", f.size());
     klog(("run " + path).c_str());
+    f.close();
     return 0;
   }
 };
@@ -1766,15 +1769,14 @@ void setup() {
 
   initFilesystem();
 
-  showLogo();
-
   klog("KernelESP v1.0 booted");
   klog("SPIFFS OK");
   klog("Serial @ 115200");
 
   // We can't do filesystem operations if we use PSRAM
   Console.usePsram(false);
-  setPrompt();
+  // The prompt prints first, before our rc -- make it empty.
+  Console.setPrompt("");
   Console.begin();
   Console.setMaxHistory(16);
   // Hardware
@@ -1842,6 +1844,21 @@ void setup() {
   Command<struct cmdWave_args>::addCmd({"wave"}, "Display a wave in ASCII art", cmdWaveHelp);
   Console.addHelpCmd();
 
+  Console.attachToSerial(true);
+
+  // Wait a little bit so the blank prompt gets written before any other output.
+  delay(100);
+
+  // Run startup script if present
+  if(SPIFFS.exists("/etc/rc")) {
+    Console.run("sh /etc/rc");
+  } else {
+    Console.run("clear");
+  }
+
+  // Set the prompt properly, and re-attach to serial so it's printed.
+  setPrompt();
+  Console.attachToSerial(false);
   Console.attachToSerial(true);
 
 }
