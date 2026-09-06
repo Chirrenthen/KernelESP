@@ -924,13 +924,14 @@ struct cmdLs_args {
     File root = SPIFFS.open("/");
     File f    = root.openNextFile();
     while (f) {
-      String fp = String(f.name()); // e.g. "/home/file.txt"
+      String fp = String(f.path()); // e.g. "/home/file.txt"
       // Show only direct children of target
       if (fp.startsWith(target)) {
         String rest = fp.substring(target.length());
+        bool isDir = rest.endsWith(".dir") || f.isDirectory();
+        if(isDir) rest = rest.substring(0, rest.length() - 5);
         // Skip if rest contains another slash (grandchild)
         if (rest.length() > 0 && rest.indexOf('/') < 0) {
-          bool isDir = rest.endsWith(".dir") || f.isDirectory();
           if (rest == ".dir") { f = root.openNextFile(); continue; } // skip dir markers
           printf("  ");
           if (isDir) {
