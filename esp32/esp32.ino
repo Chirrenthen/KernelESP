@@ -1,5 +1,5 @@
 /*
-   KernelESP v1.0
+   KernelESP v1.0.2
    A Linux-like interactive shell for the ESP32
   Tested on ESP32 - WROOM
  */
