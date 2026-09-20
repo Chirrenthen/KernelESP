@@ -301,4 +301,4 @@ Pull requests welcome. Open an issue for bugs or feature requests.
 ## Acknowledgements
 I sincerely thank @PPPDUD and @Arc1011 — some of the command implementations in this project are based on their work in KernelUNO.
 
-<p align="center">Built for the ESP32 community — KernelESP v1.0</p>
+<p align="center">Built for the ESP32 community — KernelESP v1.0.2</p>
