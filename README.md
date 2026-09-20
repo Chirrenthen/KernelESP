@@ -1,6 +1,6 @@
 # KernelESP
 
-![KernelESP](https://img.shields.io/badge/KernelESP-v1.0-00979D?style=for-the-badge&logo=espressif&logoColor=white)
+![KernelESP](https://img.shields.io/badge/KernelESP-v1.0.2-00979D?style=for-the-badge&logo=espressif&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![ESP32](https://img.shields.io/badge/ESP32-WROOM--32-E7352C?style=for-the-badge&logo=espressif&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows_|_macOS_|_Linux-808080?style=for-the-badge)
